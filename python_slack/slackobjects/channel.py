@@ -1,5 +1,6 @@
 from python_slack.slackobjects.base import SlackObject
 from python_slack.slackobjects.timeutils import Timestamp
+from python_slack.slackobjects.message import Messages
 
 class Member(SlackObject):
     pass
@@ -28,7 +29,12 @@ class ChannelBase(SlackObject):
         'creator':{'py_type':unicode}, 
         'is_archived':{'py_type':bool}, 
     }
-    _child_classes = {'members':Members, 'topic':Topic, 'purpose':Purpose}
+    _child_classes = {
+        'members':Members, 
+        'topic':Topic, 
+        'purpose':Purpose, 
+        'messages':Messages, 
+    }
     def __init__(self, **kwargs):
         members = kwargs.get('members', [])
         if isinstance(members, list):
