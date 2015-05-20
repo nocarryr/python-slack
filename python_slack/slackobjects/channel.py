@@ -6,6 +6,7 @@ class Member(SlackObject):
     
 class Members(SlackObject):
     def __init__(self, **kwargs):
+        super(Members, self).__init__(**kwargs)
         self.members = {}
         for member_id in kwargs.get('members', []):
             self.members[member_id] = Member(id=member_id, parent=self)
