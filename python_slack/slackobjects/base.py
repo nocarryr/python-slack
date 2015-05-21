@@ -1,5 +1,6 @@
 from abc import ABCMeta
 from collections import Sequence
+import datetime
 
 from python_slack.utils import iterbases
 
@@ -69,6 +70,11 @@ class AttributeValue(object):
             value = py_type(value)
         self.value = value
         
+
+
+from python_slack.slackobjects.timeutils import dt_to_ts
+
+
 class SlackObject(object):
     _attributes = {'id':{'py_type':unicode}}
     def __new__(cls, **kwargs):
@@ -109,6 +115,11 @@ class SlackObject(object):
         obj = cls(**kwargs)
         setattr(self, name, obj)
         return obj
+    def call_api(self, method, **kwargs):
+        for key, val in kwargs.iteritems():
+            if isinstance(val, datetime.datetime):
+                kwargs[key] = dt_to_ts(val)
+        ## TODO: make it go
     
 class SlackObjectContainer(SlackObject):
     __metaclass__ = ABCMeta

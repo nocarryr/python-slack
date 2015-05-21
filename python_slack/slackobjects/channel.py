@@ -43,9 +43,47 @@ class ChannelBase(SlackObject):
             members = {'members':members}
             kwargs['members'] = members
         super(ChannelBase, self).__init__(**kwargs)
+    @classmethod
+    def api_method_name(cls, method):
+        return '.'.join([cls.api_method_prefix, method])
+    def get_messages(self, **kwargs):
+        kwargs.setdefault('count', 100)
+        kwargs['channel'] = self.id
+        method = self.api_method_name('history')
+        data = self.call_api(method, **kwargs)
+        if data is None:
+            return
+        for msg_data in data['messages']:
+            self.messages.add_child(**msg_data)
+        if not data.get('has_more'):
+            return
+        ## TODO: iterate and get the rest of the messages
+        
         
 class Channel(ChannelBase):
-    pass
+    api_method_prefix = 'channels'
     
 class Group(ChannelBase):
-    pass
+    api_method_prefix = 'groups'
+    
+class ChannelContainerBase(SlackObjectDict):
+    def get_channels(self):
+        method = self.child_class.api_method_name('list')
+        data = self.call_api(method)
+        if data is None:
+            return
+        for chan_data in data['channels']:
+            if chan_data['id'] in self:
+                ## TODO: update the object. build update methods in SlackObject
+                pass
+            else:
+                self.add_child(**chan_data)
+        
+class Channels(ChannelContainerBase):
+    container_attribute = 'channels'
+    child_class = Channel
+    
+    
+class Groups(ChannelContainerBase):
+    container_attribute = 'groups'
+    child_class = Group

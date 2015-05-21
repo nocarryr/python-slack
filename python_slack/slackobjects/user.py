@@ -1,4 +1,4 @@
-from python_slack.slackobjects.base import SlackObject
+from python_slack.slackobjects.base import SlackObject, SlackObjectDict
 
 class Profile(SlackObject):
     _attributes = {
@@ -27,3 +27,18 @@ class User(SlackObject):
         'has_files':{'py_type':bool}, 
     }
     _child_classes = {'profile':Profile}
+    
+class Users(SlackObjectDict):
+    container_attribute = 'users'
+    child_class = User
+    def get_users(self):
+        data = self.call_api('users.list')
+        if data is None:
+            return
+        for user_data in data['members']:
+            if user_data['id'] in self:
+                ## TODO: see channel.ChannelContainerBase
+                pass
+            else:
+                self.add_child(**user_data)
+    
