@@ -19,6 +19,16 @@ def make_dt_aware(dt):
     
 EPOCH = make_dt_aware(datetime.datetime(1970, 1, 1))
 
+def dt_to_ts(dt):
+    dt = make_dt_aware(dt)
+    td = dt - EPOCH
+    return td.total_seconds()
+    
+def ts_to_dt(ts):
+    ts = float(ts)
+    dt = datetime.datetime.utcfromtimestamp(ts)
+    return make_dt_aware(dt)
+
 class Timestamp(AttributeValue):
     def get_value(self):
         return getattr(self, 'value_dt', None)
@@ -30,11 +40,10 @@ class Timestamp(AttributeValue):
             value = float(value)
         if isinstance(value, numbers.Number):
             ts = value
-            dt = make_dt_aware(datetime.datetime.utcfromtimestamp(value))
+            dt = ts_to_dt(ts)
         elif isinstance(value, datetime.datetime):
             dt = make_dt_aware(value)
-            td = dt - EPOCH
-            ts = td.total_seconds()
+            ts = dt_to_ts(dt)
         self.value_dt = dt
         self.value_ts = ts
         
