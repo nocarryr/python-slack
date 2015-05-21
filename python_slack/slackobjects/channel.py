@@ -1,17 +1,19 @@
-from python_slack.slackobjects.base import SlackObject
+from python_slack.slackobjects.base import SlackObject, SlackObjectDict
 from python_slack.slackobjects.timeutils import Timestamp
 from python_slack.slackobjects.message import Messages
 
 class Member(SlackObject):
     pass
     
-class Members(SlackObject):
-    def __init__(self, **kwargs):
-        super(Members, self).__init__(**kwargs)
-        self.members = {}
-        for member_id in kwargs.get('members', []):
-            self.members[member_id] = Member(id=member_id, parent=self)
-            
+class Members(SlackObjectDict):
+    container_attribute = 'members'
+    child_class = Member
+    def add_child(self, key=None, child_data=None, **kwargs):
+        if child_data is not None:
+            if isinstance(child_data, basestring):
+                child_data = {'id':child_data}
+        return super(Members, self).add_child(key, child_data, **kwargs)
+    
 class Topic(SlackObject):
     _attributes = {
         'value':{'py_type':unicode}, 

@@ -1,4 +1,4 @@
-from python_slack.slackobjects.base import SlackObject
+from python_slack.slackobjects.base import SlackObject, SlackObjectDict
 from python_slack.slackobjects.timeutils import Timestamp
 
 class MessageEdit(SlackObject):
@@ -20,14 +20,8 @@ class Message(SlackObject):
     }
     _child_classes = {'edited':MessageEdit}
     
-class Messages(SlackObject):
-    def __init__(self, **kwargs):
-        super(Messages, self).__init__(**kwargs)
-        self.messages = {}
-        for msg in kwargs.get('messages', []):
-            self.add_message(**msg)
-    def add_message(self, **kwargs):
-        kwargs.setdefault('parent', self)
-        msg = Message(**kwargs)
-        self.messages[msg.ts] = msg
-        return msg
+class Messages(SlackObjectDict):
+    container_attribute = 'messages'
+    child_id_attribute = 'ts'
+    child_class = Message
+    
